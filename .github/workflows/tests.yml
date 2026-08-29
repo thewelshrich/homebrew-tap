@@ -1,0 +1,125 @@
+name: Homebrew tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: homebrew-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash -xeuo pipefail {0}
+
+jobs:
+  test-bot:
+    name: Test ${{ matrix.name }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: macOS arm64
+            runner: macos-15
+          - name: macOS amd64
+            runner: macos-15-intel
+          - name: Linux arm64
+            runner: ubuntu-24.04-arm
+            container:
+              image: ghcr.io/homebrew/brew:main
+              options: --privileged
+          - name: Linux amd64
+            runner: ubuntu-24.04
+            container:
+              image: ghcr.io/homebrew/brew:main
+              options: --privileged
+    runs-on: ${{ matrix.runner }}
+    container: ${{ fromJSON(toJSON(matrix.container)) }}
+    permissions:
+      actions: read
+      checks: read
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Set up Homebrew
+        id: set-up-homebrew
+        uses: Homebrew/actions/setup-homebrew@a657b8b0cd35d0f65cce41fce9b24cf054b49869 # 2026.08.24.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Cache Homebrew Bundler RubyGems
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ steps.set-up-homebrew.outputs.gems-path }}
+          key: ${{ matrix.runner }}-rubygems-${{ steps.set-up-homebrew.outputs.gems-hash }}
+          restore-keys: ${{ matrix.runner }}-rubygems-
+
+      - name: Clean test environment
+        run: brew test-bot --only-cleanup-before
+
+      - name: Set up test environment
+        run: brew test-bot --only-setup
+
+      - name: Check tap syntax
+        run: brew test-bot --only-tap-syntax
+
+      - name: Test changed formulae
+        if: github.event_name == 'pull_request'
+        run: brew test-bot --only-formulae
+
+  public-install:
+    name: Public install ${{ matrix.name }}
+    if: github.event_name == 'push'
+    needs: test-bot
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: macOS arm64
+            runner: macos-15
+          - name: macOS amd64
+            runner: macos-15-intel
+          - name: Linux arm64
+            runner: ubuntu-24.04-arm
+            container:
+              image: ghcr.io/homebrew/brew:main
+              options: --privileged
+          - name: Linux amd64
+            runner: ubuntu-24.04
+            container:
+              image: ghcr.io/homebrew/brew:main
+              options: --privileged
+    runs-on: ${{ matrix.runner }}
+    container: ${{ fromJSON(toJSON(matrix.container)) }}
+    permissions:
+      contents: read
+    steps:
+      - name: Set up Homebrew
+        id: set-up-homebrew
+        uses: Homebrew/actions/setup-homebrew@a657b8b0cd35d0f65cce41fce9b24cf054b49869 # 2026.08.24.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Detect formula
+        id: formula
+        run: |
+          if [[ -f Formula/schooner.rb ]]; then
+            echo "present=true" >> "${GITHUB_OUTPUT}"
+          else
+            echo "present=false" >> "${GITHUB_OUTPUT}"
+          fi
+
+      - name: Install through the public tap
+        if: steps.formula.outputs.present == 'true'
+        run: |
+          brew untap --force thewelshrich/tap
+          brew install thewelshrich/tap/schooner
+          brew test thewelshrich/tap/schooner
+          test -f "$(brew --prefix)/etc/bash_completion.d/schooner"
+          test -f "$(brew --prefix)/share/zsh/site-functions/_schooner"
+          test -f "$(brew --prefix)/share/fish/vendor_completions.d/schooner.fish"
