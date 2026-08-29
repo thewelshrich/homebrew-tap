@@ -105,19 +105,11 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Detect formula
-        id: formula
-        run: |
-          if [[ -f Formula/schooner.rb ]]; then
-            echo "present=true" >> "${GITHUB_OUTPUT}"
-          else
-            echo "present=false" >> "${GITHUB_OUTPUT}"
-          fi
-
       - name: Install through the public tap
-        if: steps.formula.outputs.present == 'true'
         run: |
-          brew untap --force thewelshrich/tap
+          tap_repository="$(brew --repository thewelshrich/tap)"
+          test "$(git -C "${tap_repository}" rev-parse HEAD)" = "${GITHUB_SHA}"
+          test -f "${tap_repository}/Formula/schooner.rb"
           brew install thewelshrich/tap/schooner
           brew test thewelshrich/tap/schooner
           test -f "$(brew --prefix)/etc/bash_completion.d/schooner"
