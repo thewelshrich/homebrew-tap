@@ -4,7 +4,6 @@
 class Schooner < Formula
   desc "Operate persistent, user-owned development machines"
   homepage "https://github.com/thewelshrich/schooner"
-  version "0.2.0"
   license "Apache-2.0"
 
   on_macos do
