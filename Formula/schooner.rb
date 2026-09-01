@@ -8,23 +8,23 @@ class Schooner < Formula
 
   on_macos do
     on_arm do
-      url "https://github.com/thewelshrich/schooner/releases/download/v0.3.0/schooner_v0.3.0_darwin_arm64.tar.gz"
-      sha256 "5c3a6403b0b0193875fc8bf7be897584e42bfd2518e4eeed4c6ed8ca278bdecc"
+      url "https://github.com/thewelshrich/schooner/releases/download/v0.4.0/schooner_v0.4.0_darwin_arm64.tar.gz"
+      sha256 "21720e4040cfd642671572315cb5fbda4733454cbb96e22032f8a8cad2cf0636"
     end
     on_intel do
-      url "https://github.com/thewelshrich/schooner/releases/download/v0.3.0/schooner_v0.3.0_darwin_amd64.tar.gz"
-      sha256 "a13b0788345a02eed138fff99f73b3c1e04f9f0c4cbd7f529aa94f13931049ee"
+      url "https://github.com/thewelshrich/schooner/releases/download/v0.4.0/schooner_v0.4.0_darwin_amd64.tar.gz"
+      sha256 "3bf9ab478a9710e03b240b17d9046b6e4cc2ebc2f5cf11eee020bed8dd402f1a"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/thewelshrich/schooner/releases/download/v0.3.0/schooner_v0.3.0_linux_arm64.tar.gz"
-      sha256 "4745cb2e84c75a3b44271515e9801d1865572baec9995d2463f5f329b5467098"
+      url "https://github.com/thewelshrich/schooner/releases/download/v0.4.0/schooner_v0.4.0_linux_arm64.tar.gz"
+      sha256 "ea877ea332356d257e40d50b0d097f2ca831f01fc8a62018175037865270946c"
     end
     on_intel do
-      url "https://github.com/thewelshrich/schooner/releases/download/v0.3.0/schooner_v0.3.0_linux_amd64.tar.gz"
-      sha256 "b9d15b115e6c5ec02c98693695be8a18a807e48cb8e64367e122372dd8fb5fe6"
+      url "https://github.com/thewelshrich/schooner/releases/download/v0.4.0/schooner_v0.4.0_linux_amd64.tar.gz"
+      sha256 "b1899b97c5431223b35c2309429de9b3871ae55f98425aacafce6ed5626fe9f8"
     end
   end
 
