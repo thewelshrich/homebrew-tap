@@ -66,7 +66,8 @@ jobs:
         run: brew test-bot --only-setup
 
       - name: Check tap syntax
-        run: brew test-bot --only-tap-syntax
+        timeout-minutes: 10
+        run: brew test-bot --only-tap-syntax --verbose
 
       - name: Test changed formulae
         if: github.event_name == 'pull_request'
